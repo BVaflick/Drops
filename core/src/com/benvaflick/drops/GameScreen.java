@@ -21,8 +21,11 @@ public class GameScreen implements Screen {
 	static int SCREEN_WIDTH = 800;
 	static int SCREEN_HEIGHT = 480;
 
-	final Drop game;
+
+	final Main game;
 	long lastDropTime;
+    long lastModeChange;
+	long timeMark;
 
 	int dropsGatchered;
 	int livesLeft;
@@ -31,25 +34,24 @@ public class GameScreen implements Screen {
 	OrthographicCamera camera;
 	SpriteBatch batch;
 
-	Texture dropImg;
 	Texture bucketImg;
 	Texture gatheredDropsImg;
 	Texture livesImg;
 	Texture rect;
 
 	Rectangle bucket;
-	Array<Rectangle> drops;
+	Array<Drop> drops;
 
 	Sound dropSound;
 	Music rainMusic;
 
-	public GameScreen (final Drop game) {
+	public GameScreen (final Main game) {
 		this.game = game;
 		this.batch = game.batch;
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-		dropImg = new Texture("droplet.png");
+
 		bucketImg = new Texture("bucket.png");
 		gatheredDropsImg = new Texture("drops.png");
 		livesImg = new Texture("lives.png");
@@ -57,6 +59,8 @@ public class GameScreen implements Screen {
 
 		dropsGatchered = 0;
 		livesLeft = 3;
+		timeMark = 10000000000L;
+        lastModeChange = TimeUtils.nanoTime();
 
 		dropSound = Gdx.audio.newSound(Gdx.files.internal("waterdrop.wav"));
 		rainMusic = Gdx.audio.newMusic(Gdx.files.internal("undertreeinrain.mp3"));
@@ -70,16 +74,12 @@ public class GameScreen implements Screen {
 		bucket.width = bucketImg.getWidth();
 		bucket.height = bucketImg.getHeight();
 
-		drops = new Array<Rectangle>();
+		drops = new Array<Drop>();
 		spawnDrops();
 	}
 
 	private void spawnDrops(){
-		Rectangle drop = new Rectangle();
-		drop.x = MathUtils.random(0, SCREEN_WIDTH - dropImg.getWidth());
-		drop.y = SCREEN_HEIGHT;
-		drop.width = dropImg.getWidth()-10;
-		drop.height = dropImg.getHeight()-10;
+		Drop drop = new Drop();
 		drops.add(drop);
 		lastDropTime = TimeUtils.nanoTime();
 	}
@@ -104,8 +104,8 @@ public class GameScreen implements Screen {
 		batch.draw(gatheredDropsImg, 45, 445);
 		game.font.draw(batch, dropsGatchered + "", 70, 460);
 
-		for(Rectangle drop: drops) {
-			batch.draw(dropImg, drop.x - 5, drop.y - 5);
+		for(Drop drop: drops) {
+			batch.draw(Drop.DROP_IMAGE, drop.rect.x - 5, drop.rect.y - 5);
 		}
 		batch.end();
 		if(Gdx.input.isTouched()) {
@@ -119,13 +119,18 @@ public class GameScreen implements Screen {
 		if(bucket.x < 0) bucket.x = 0;
 		if(bucket.x > SCREEN_WIDTH - bucketImg.getWidth()) bucket.x = SCREEN_WIDTH - bucketImg.getWidth();
 
-		if(TimeUtils.nanoTime() - lastDropTime > 1000000000) spawnDrops();
+		if((TimeUtils.nanoTime() - lastDropTime) > (500000000 * Main.GAME_MODE)) spawnDrops();
+		if((TimeUtils.nanoTime() - lastModeChange) > timeMark) {
+			Main.GAME_MODE = MathUtils.random(1, 3);
+            lastModeChange = TimeUtils.nanoTime();
+            timeMark = 10000000000L + (1000000000 * MathUtils.random(0,3));
+		}
 
-		Iterator<Rectangle> iter = drops.iterator();
+		Iterator<Drop> iter = drops.iterator();
 		while (iter.hasNext()) {
-			Rectangle drop = iter.next();
-			drop.y -= 200 * Gdx.graphics.getDeltaTime();
-			if(drop.y + dropImg.getHeight() < 0) {
+			Drop drop = iter.next();
+			drop.rect.y -= drop.speed * Gdx.graphics.getDeltaTime();
+			if(drop.rect.y + Drop.DROP_IMAGE.getHeight() < 0) {
 				iter.remove();
 				livesLeft--;
 				if(livesLeft == 0) {
@@ -133,7 +138,7 @@ public class GameScreen implements Screen {
 					dispose();
 				}
 			}
-			if(drop.overlaps(bucket)) {
+			if(drop.rect.overlaps(bucket)) {
 				dropSound.play();
 				dropsGatchered++;
 				iter.remove();
@@ -163,7 +168,7 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void dispose() {
-		dropImg.dispose();
+        Drop.DROP_IMAGE.dispose();
 		bucketImg.dispose();
 		dropSound.dispose();
 		rainMusic.dispose();

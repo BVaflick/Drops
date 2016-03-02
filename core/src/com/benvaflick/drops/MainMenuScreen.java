@@ -5,15 +5,14 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.Rectangle;
 
 public class MainMenuScreen implements Screen {
 
-    final Drop game;
+    final Main game;
     OrthographicCamera camera;
     Texture tapImg;
 
-    public MainMenuScreen(Drop game) {
+    public MainMenuScreen(Main game) {
         this.game = game;
 
         camera = new OrthographicCamera();

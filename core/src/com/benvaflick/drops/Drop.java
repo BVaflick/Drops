@@ -1,33 +1,26 @@
 package com.benvaflick.drops;
 
-import com.badlogic.gdx.Game;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 
-public class Drop extends Game {
+public class Drop {
 
-    SpriteBatch batch;
-    BitmapFont font;
+    static Texture DROP_IMAGE = new Texture("droplet.png");
 
-    @Override
-    public void create() {
-        batch = new SpriteBatch();
-        font = new BitmapFont();
-        font.setColor(Color.BLACK);
+    int x;
+    int y;
+    int width;
+    int height;
+    int speed;
+    Rectangle rect;
 
-        this.setScreen(new MainMenuScreen(this));
-    }
-
-    @Override
-    public void render() {
-        super.render();
-    }
-
-    @Override
-    public void dispose() {
-        super.dispose();
-        batch.dispose();
-        font.dispose();
+    public Drop(){
+        x = MathUtils.random(0, GameScreen.SCREEN_WIDTH - DROP_IMAGE.getWidth());
+        y = GameScreen.SCREEN_HEIGHT;
+        width = DROP_IMAGE.getWidth()-10;
+        height = DROP_IMAGE.getHeight()-10;
+        rect = new Rectangle(x, y , width, height);
+        speed = 100 * Main.GAME_MODE;
     }
 }
