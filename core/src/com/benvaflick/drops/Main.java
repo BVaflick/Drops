@@ -7,8 +7,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class Main extends Game {
 
-    static int GAME_MODE = 2;
-
     SpriteBatch batch;
     BitmapFont font;
 

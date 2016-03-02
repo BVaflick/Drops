@@ -15,12 +15,12 @@ public class Drop {
     int speed;
     Rectangle rect;
 
-    public Drop(){
+    public Drop(int gameMode, int difficulty){
         x = MathUtils.random(0, GameScreen.SCREEN_WIDTH - DROP_IMAGE.getWidth());
         y = GameScreen.SCREEN_HEIGHT;
         width = DROP_IMAGE.getWidth()-10;
         height = DROP_IMAGE.getHeight()-10;
         rect = new Rectangle(x, y , width, height);
-        speed = 100 * Main.GAME_MODE;
+        speed = (100 * gameMode) + (10 * difficulty);
     }
 }

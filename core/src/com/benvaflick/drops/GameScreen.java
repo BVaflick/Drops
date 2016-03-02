@@ -21,10 +21,13 @@ public class GameScreen implements Screen {
 	static int SCREEN_WIDTH = 800;
 	static int SCREEN_HEIGHT = 480;
 
+    int gameMode;
+    int difficulty;
 
-	final Main game;
+    final Main game;
 	long lastDropTime;
     long lastModeChange;
+    long lastDifficultyChange;
 	long timeMark;
 
 	int dropsGatchered;
@@ -57,10 +60,13 @@ public class GameScreen implements Screen {
 		livesImg = new Texture("lives.png");
 		rect = new Texture("rect.png");
 
+        gameMode = 2;
+        difficulty = 0;
 		dropsGatchered = 0;
 		livesLeft = 3;
 		timeMark = 10000000000L;
-        lastModeChange = TimeUtils.nanoTime();
+        lastModeChange = lastDifficultyChange = TimeUtils.nanoTime();
+
 
 		dropSound = Gdx.audio.newSound(Gdx.files.internal("waterdrop.wav"));
 		rainMusic = Gdx.audio.newMusic(Gdx.files.internal("undertreeinrain.mp3"));
@@ -79,7 +85,7 @@ public class GameScreen implements Screen {
 	}
 
 	private void spawnDrops(){
-		Drop drop = new Drop();
+		Drop drop = new Drop(gameMode, difficulty);
 		drops.add(drop);
 		lastDropTime = TimeUtils.nanoTime();
 	}
@@ -100,9 +106,9 @@ public class GameScreen implements Screen {
 		batch.begin();
 		batch.draw(bucketImg, bucket.x, bucket.y);
 		batch.draw(livesImg, 10, 445);
-		game.font.draw(batch, livesLeft + "", 35, 460);
-		batch.draw(gatheredDropsImg, 45, 445);
-		game.font.draw(batch, dropsGatchered + "", 70, 460);
+		game.font.draw(batch, livesLeft + "", 37, 460);
+		batch.draw(gatheredDropsImg, 50, 445);
+		game.font.draw(batch, dropsGatchered + "", 75, 460);
 
 		for(Drop drop: drops) {
 			batch.draw(Drop.DROP_IMAGE, drop.rect.x - 5, drop.rect.y - 5);
@@ -119,9 +125,13 @@ public class GameScreen implements Screen {
 		if(bucket.x < 0) bucket.x = 0;
 		if(bucket.x > SCREEN_WIDTH - bucketImg.getWidth()) bucket.x = SCREEN_WIDTH - bucketImg.getWidth();
 
-		if((TimeUtils.nanoTime() - lastDropTime) > (500000000 * Main.GAME_MODE)) spawnDrops();
+		if((TimeUtils.nanoTime() - lastDropTime) > (500000000 * gameMode) - (5000000 * difficulty)) spawnDrops();
+        if(difficulty < 50 && ((TimeUtils.nanoTime() - lastDifficultyChange) > 50000000000L)) {
+            difficulty++;
+            lastDifficultyChange = TimeUtils.nanoTime();
+        }
 		if((TimeUtils.nanoTime() - lastModeChange) > timeMark) {
-			Main.GAME_MODE = MathUtils.random(1, 3);
+            gameMode = MathUtils.random(1, 3);
             lastModeChange = TimeUtils.nanoTime();
             timeMark = 10000000000L + (1000000000 * MathUtils.random(0,3));
 		}
@@ -169,7 +179,7 @@ public class GameScreen implements Screen {
 	@Override
 	public void dispose() {
         Drop.DROP_IMAGE.dispose();
-		bucketImg.dispose();
+        bucketImg.dispose();
 		dropSound.dispose();
 		rainMusic.dispose();
 	}
