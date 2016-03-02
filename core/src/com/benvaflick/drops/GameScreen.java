@@ -41,6 +41,7 @@ public class GameScreen implements Screen {
 	Texture gatheredDropsImg;
 	Texture livesImg;
 	Texture rect;
+	Texture dropImg;
 
 	Rectangle bucket;
 	Array<Drop> drops;
@@ -59,6 +60,7 @@ public class GameScreen implements Screen {
 		gatheredDropsImg = new Texture("drops.png");
 		livesImg = new Texture("lives.png");
 		rect = new Texture("rect.png");
+		dropImg = new Texture("droplet.png");
 
         gameMode = 2;
         difficulty = 0;
@@ -111,7 +113,7 @@ public class GameScreen implements Screen {
 		game.font.draw(batch, dropsGatchered + "", 75, 460);
 
 		for(Drop drop: drops) {
-			batch.draw(Drop.DROP_IMAGE, drop.rect.x - 5, drop.rect.y - 5);
+			batch.draw(dropImg, drop.rect.x - 5, drop.rect.y - 5);
 		}
 		batch.end();
 		if(Gdx.input.isTouched()) {
@@ -126,9 +128,9 @@ public class GameScreen implements Screen {
 		if(bucket.x > SCREEN_WIDTH - bucketImg.getWidth()) bucket.x = SCREEN_WIDTH - bucketImg.getWidth();
 
 		if((TimeUtils.nanoTime() - lastDropTime) > (500000000 * gameMode) - (5000000 * difficulty)) spawnDrops();
-        if(difficulty < 50 && ((TimeUtils.nanoTime() - lastDifficultyChange) > 50000000000L)) {
+        if(difficulty < 50 && ((TimeUtils.nanoTime() - lastDifficultyChange) > 5000000000L)) {
             difficulty++;
-            lastDifficultyChange = TimeUtils.nanoTime();
+			lastDifficultyChange = TimeUtils.nanoTime();
         }
 		if((TimeUtils.nanoTime() - lastModeChange) > timeMark) {
             gameMode = MathUtils.random(1, 3);
@@ -140,7 +142,7 @@ public class GameScreen implements Screen {
 		while (iter.hasNext()) {
 			Drop drop = iter.next();
 			drop.rect.y -= drop.speed * Gdx.graphics.getDeltaTime();
-			if(drop.rect.y + Drop.DROP_IMAGE.getHeight() < 0) {
+			if(drop.rect.y + 40 < 0) {
 				iter.remove();
 				livesLeft--;
 				if(livesLeft == 0) {
@@ -158,12 +160,12 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void resize(int width, int height) {
-
+		System.out.println("resized");
 	}
 
 	@Override
 	public void pause() {
-
+		game.setScreen(new MainMenuScreen(game));
 	}
 
 	@Override
@@ -178,7 +180,7 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void dispose() {
-        Drop.DROP_IMAGE.dispose();
+        dropImg.dispose();
         bucketImg.dispose();
 		dropSound.dispose();
 		rainMusic.dispose();

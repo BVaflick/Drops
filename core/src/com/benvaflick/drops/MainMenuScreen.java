@@ -38,7 +38,8 @@ public class MainMenuScreen implements Screen {
         game.batch.draw(tapImg, 300, 140);
         game.batch.end();
 
-        if(Gdx.input.isTouched()) {
+        if(Gdx.input.justTouched()) {
+
             game.setScreen(new GameScreen(game));
             dispose();
         }
@@ -52,7 +53,6 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void pause() {
-
     }
 
     @Override

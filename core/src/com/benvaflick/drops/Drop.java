@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Rectangle;
 
 public class Drop {
 
-    static Texture DROP_IMAGE = new Texture("droplet.png");
+
 
     int x;
     int y;
@@ -16,10 +16,10 @@ public class Drop {
     Rectangle rect;
 
     public Drop(int gameMode, int difficulty){
-        x = MathUtils.random(0, GameScreen.SCREEN_WIDTH - DROP_IMAGE.getWidth());
+        x = MathUtils.random(0, GameScreen.SCREEN_WIDTH - 40);
         y = GameScreen.SCREEN_HEIGHT;
-        width = DROP_IMAGE.getWidth()-10;
-        height = DROP_IMAGE.getHeight()-10;
+        width = 30;
+        height = 30;
         rect = new Rectangle(x, y , width, height);
         speed = (100 * gameMode) + (10 * difficulty);
     }
